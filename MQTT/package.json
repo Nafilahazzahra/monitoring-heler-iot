@@ -1,0 +1,18 @@
+{
+  "name": "mqtt-heler-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Broker MQTT lokal dan bridge serial Arduino ke MQTT untuk monitoring mesin heler.",
+  "main": "broker.js",
+  "scripts": {
+    "broker": "node broker.js",
+    "bridge": "node serial-to-mqtt.js",
+    "publish:test": "node publish-sample.js"
+  },
+  "dependencies": {
+    "@serialport/parser-readline": "^12.0.0",
+    "aedes": "^0.51.3",
+    "mqtt": "^5.14.1",
+    "serialport": "^12.0.0"
+  }
+}

@@ -1,0 +1,98 @@
+services:
+  # MQTT Broker Service (NodeJS)
+  mqtt:
+    build:
+      context: ./MQTT
+      dockerfile: Dockerfile
+    container_name: mqtt_broker
+    restart: always
+    ports:
+      - "1883:1883"
+
+  # MySQL Database Service
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: db_heler
+      MYSQL_USER: nafilah
+      MYSQL_PASSWORD: "123"
+      MYSQL_ROOT_PASSWORD: "123"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # phpMyAdmin Web Client
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    depends_on:
+      - mysql
+
+  # Laravel Web Application Service
+  web:
+    build:
+      context: ./WEB
+      dockerfile: Dockerfile
+    container_name: laravel_web
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./WEB:/var/www/html
+      - laravel_cache:/var/www/html/storage/framework/cache
+      - laravel_sessions:/var/www/html/storage/framework/sessions
+      - laravel_views:/var/www/html/storage/framework/views
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=db_heler
+      - DB_USERNAME=nafilah
+      - DB_PASSWORD=123
+      - MQTT_HOST=mqtt
+      - MQTT_PORT=1883
+    depends_on:
+      - mysql
+      - mqtt
+
+  # Laravel MQTT Listener daemon
+  mqtt-listener:
+    build:
+      context: ./WEB
+      dockerfile: Dockerfile
+    container_name: laravel_mqtt_listener
+    restart: always
+    command: php artisan mqtt:listen
+    volumes:
+      - ./WEB:/var/www/html
+      - laravel_cache:/var/www/html/storage/framework/cache
+      - laravel_sessions:/var/www/html/storage/framework/sessions
+      - laravel_views:/var/www/html/storage/framework/views
+    environment:
+      - DB_CONNECTION=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=db_heler
+      - DB_USERNAME=nafilah
+      - DB_PASSWORD=123
+      - MQTT_HOST=mqtt
+      - MQTT_PORT=1883
+    depends_on:
+      - mysql
+      - mqtt
+
+volumes:
+  mysql_data:
+    driver: local
+  laravel_cache:
+  laravel_sessions:
+  laravel_views:

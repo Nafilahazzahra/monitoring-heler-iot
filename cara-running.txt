@@ -1,0 +1,24 @@
+cd /d D:\Tugas Akhir\MQTT
+node broker.js
+
+cd /d D:\Tugas Akhir\WEB
+php artisan mqtt:listen
+
+cd /d D:\Tugas Akhir\WEB
+php artisan serve --host=0.0.0.0 --port=8000
+
+
+note: 
+jika mqtt belum connect 
+powershell run administration
+
+netstat -ano | findstr :1883
+netsh advfirewall firewall add rule name="MQTT 1883" dir=in action=allow protocol=TCP localport=1883
+
+troubleshooting upload esp32:
+1. pastikan Serial Monitor Arduino IDE tertutup.
+2. jika `MQTT\start-bridge.bat` atau `serial-to-mqtt.js` sedang jalan, stop dulu karena default memakai `COM3`.
+3. di Arduino IDE ubah `Upload Speed` dari `921600` ke `115200`.
+4. cabut sementara koneksi sensor dari pin RX/TX jika ada perangkat yang menempel ke pin serial.
+5. jika masih gagal, tekan dan tahan tombol `BOOT` saat proses `Connecting...`, lalu lepas setelah upload mulai jalan.
+6. error `Invalid head of packet (0xFF)` biasanya karena noise serial, baud terlalu tinggi, kabel USB kurang bagus, atau port COM sedang dipakai proses lain.
