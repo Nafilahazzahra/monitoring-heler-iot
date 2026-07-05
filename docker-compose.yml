@@ -29,11 +29,10 @@ services:
     image: phpmyadmin:latest
     container_name: phpmyadmin
     restart: always
-    ports:
-      - "8080:80"
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: https://${DOMAIN_NAME:-localhost}/phpmyadmin/
     depends_on:
       - mysql
 
@@ -44,8 +43,6 @@ services:
       dockerfile: Dockerfile
     container_name: laravel_web
     restart: always
-    ports:
-      - "8000:8000"
     volumes:
       - ./WEB:/var/www/html
       - laravel_cache:/var/www/html/storage/framework/cache
@@ -89,6 +86,25 @@ services:
     depends_on:
       - mysql
       - mqtt
+
+  # Nginx Reverse Proxy Service (HTTPS)
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
+    volumes:
+      - ./nginx/letsencrypt:/etc/letsencrypt
+      - ./nginx/certbot_challenge:/var/www/certbot
+    depends_on:
+      - web
+      - phpmyadmin
 
 volumes:
   mysql_data:

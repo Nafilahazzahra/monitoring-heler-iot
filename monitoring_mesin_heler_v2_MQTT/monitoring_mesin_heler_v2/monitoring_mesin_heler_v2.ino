@@ -10,7 +10,7 @@
 const char* WIFI_SSID = "8";
 const char* WIFI_PASSWORD = "88888888";
 
-const char* MQTT_HOST = "10.23.211.213";
+const char* MQTT_HOST = "10.112.228.213";
 const uint16_t MQTT_PORT = 1883;
 
 const char* MQTT_TOPIC = "heler/sensor";
